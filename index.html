@@ -203,11 +203,11 @@
     background-size:250% 100%;
     -webkit-background-clip:text; background-clip:text; color:transparent;
     filter:drop-shadow(0 8px 34px rgba(240,185,61,0.28));
-    animation:shine 7s ease-in-out infinite;
+    animation:shine 2.2s ease-out 1;
   }
   @keyframes shine{
-    0%,100%{ background-position:0% 50%; }
-    50%{ background-position:100% 50%; }
+    0%{ background-position:0% 50%; }
+    100%{ background-position:100% 50%; }
   }
   .hero .sub{
     margin-top:20px; font-size:clamp(16px,2.4vw,20px); font-weight:600;
@@ -285,7 +285,7 @@
     color:var(--gold-soft); padding:0 22px; display:inline-flex; align-items:center; gap:22px;
     opacity:0.85;
   }
-  .ticker-track span::after{ content:"✦"; color:var(--coral); font-size:11px; }
+  .ticker-track span::after{ content:""; width:5px; height:5px; border-radius:50%; background:var(--coral); display:inline-block; }
   @keyframes tickerscroll{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
 
   /* ================= ABOUT / CATEGORIES ================= */
@@ -507,8 +507,10 @@
   }
   .ticket .tk-top{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
   .ticket .step-num{
-    font-family:'Anton',sans-serif; font-size:13px; color:var(--gold);
-    border:1px solid var(--gold); border-radius:999px; padding:4px 12px;
+    font-family:'Anton',sans-serif; font-size:16px; color:var(--gold);
+    width:30px; height:30px; border-radius:50%;
+    border:1px solid var(--gold);
+    display:flex; align-items:center; justify-content:center;
   }
   .ticket .check{
     width:24px; height:24px; border-radius:50%; border:1.5px solid var(--muted-2);
@@ -640,7 +642,7 @@
     <div class="eyebrow"><span class="dot"></span> Frolic 2026 · Darshan University</div>
     <h1>Frolic's Got<br>Catent</h1>
     <div class="sub">Where every phone is a judge.</div>
-    <p class="desc">A fast-paced, interactive talent showcase. Every performer gets two minutes on stage — and the whole room decides what happens next.</p>
+    <p class="desc">Two minutes on stage. The room and the panel decide the rest.</p>
 
     <div class="info-chips">
       <span class="chip">
@@ -671,7 +673,7 @@
   <div class="wrap grid">
     <div class="reveal">
       <h2>Ten ways to hold a spotlight</h2>
-      <p class="lede">Sing, dance, joke, rhyme, beatbox, or just tell a story that's actually yours — if it fits in two minutes and holds a room, it belongs on this stage.</p>
+      <p class="lede">If it fits in two minutes and holds a room, it belongs on this stage.</p>
       <ul class="cat-list">
         <li><span class="mic">●</span> Singing</li>
         <li><span class="mic">●</span> Dance</li>
@@ -701,30 +703,29 @@
 <section class="scoring" id="scoring">
   <div class="wrap">
     <div class="head reveal">
-      <div class="eyebrow"><span class="dot"></span> Judging criteria</div>
       <h2>Two rounds. One winner list.</h2>
-      <p class="lede">Scoring runs the same way in both rounds — the audience and the judges each score independently, and the two scores are combined.</p>
+      <p class="lede">Same scoring both rounds: the audience and the judges each score independently, then the two are combined.</p>
     </div>
     <div class="timeline">
       <div class="tstep reveal">
         <div class="num">1</div>
         <div class="content">
           <h3>Perform</h3>
-          <p>Every act gets a strict two-minute slot, in the order the coordinators set.</p>
+          <p>A strict two-minute slot, in the order coordinators set.</p>
         </div>
       </div>
       <div class="tstep reveal">
         <div class="num">2</div>
         <div class="content">
           <h3>Get scored twice, at once</h3>
-          <p>The audience scores you live by scanning a QR code at the door. Four judges score you from the panel. Both use a 1–10 scale in half-point steps.</p>
+          <p>The audience scores you live via QR code; four judges score from the panel. Both use 1–10, in half-point steps.</p>
         </div>
       </div>
       <div class="tstep reveal">
         <div class="num">3</div>
         <div class="content">
           <h3>The two averages combine</h3>
-          <p>Your final score is the average of the audience's average and the judges' average, rounded to the nearest half point.</p>
+          <p>Your final score is the average of both, rounded to the nearest half point.</p>
         </div>
       </div>
       <div class="tstep reveal">
@@ -756,35 +757,34 @@
 <section class="rules" id="rules">
   <div class="wrap">
     <div class="head reveal">
-      <div class="eyebrow"><span class="dot"></span> Rules & regulations</div>
       <h2>House rules, kept short</h2>
-      <p class="lede">The full rules and regulations are confirmed during script review. Here's what matters most on the night.</p>
+      <p class="lede">What matters most on the night — the full list is confirmed at script review.</p>
     </div>
 
     <div class="reveal">
       <div class="rule-row">
         <div class="rn">01</div>
-        <div><h3>Keep it clean</h3><p>No vulgar, obscene, hateful, or discriminatory content — in language, lyrics, or props.</p></div>
+        <div><h3>Keep it clean</h3><p>No vulgar, hateful, or discriminatory content — in language, lyrics, or props.</p></div>
       </div>
       <div class="rule-row">
         <div class="rn">02</div>
-        <div><h3>Get it approved first</h3><p>Scripts, audio, lyrics, and props must be submitted and approved before you go on. Unapproved changes can mean disqualification.</p></div>
+        <div><h3>Get it approved first</h3><p>Scripts, audio, and props need approval before you go on. Unapproved changes risk disqualification.</p></div>
       </div>
       <div class="rule-row">
         <div class="rn">03</div>
-        <div><h3>Stay in your two minutes</h3><p>Coordinators set the running order and the clock. Both are final.</p></div>
+        <div><h3>Stay in your two minutes</h3><p>Coordinators set the order and the clock. Both are final.</p></div>
       </div>
       <div class="rule-row">
         <div class="rn">04</div>
-        <div><h3>Play fair</h3><p>Don't try to influence judges, manipulate audience scoring, or interfere with another act's performance.</p></div>
+        <div><h3>Play fair</h3><p>No influencing judges, manipulating scoring, or interfering with another act.</p></div>
       </div>
       <div class="rule-row">
         <div class="rn">05</div>
-        <div><h3>Coordinators have the final word</h3><p>Calls on rule violations, disqualifications, and disputes are final and binding.</p></div>
+        <div><h3>Coordinators have the final word</h3><p>Calls on violations, disqualifications, and disputes are binding.</p></div>
       </div>
       <div class="rule-row">
         <div class="rn">06</div>
-        <div><h3>No refunds on rejected scripts</h3><p>If your script doesn't clear approval, your entry isn't refunded.</p></div>
+        <div><h3>No refunds on rejected scripts</h3><p>An unapproved script means no refund on your entry.</p></div>
       </div>
     </div>
 
@@ -841,9 +841,8 @@
 <section class="registration" id="register">
   <div class="wrap">
     <div class="head reveal">
-      <div class="eyebrow"><span class="dot"></span> Registration</div>
       <h2>Two forms. One stage pass.</h2>
-      <p class="lede">Both steps are compulsory — you're only fully registered once each one is marked done below.</p>
+      <p class="lede">Both are required. Mark each done below once you've submitted it.</p>
       <div class="progress-track">
         <div class="pbulb" id="pbulb1"></div>
         <div class="bar"><div class="fill" id="pt-fill"></div></div>
@@ -855,11 +854,11 @@
     <div class="tickets" id="tickets">
       <div class="ticket reveal" id="ticket1">
         <div class="tk-top">
-          <span class="step-num">STEP 1</span>
+          <span class="step-num">1</span>
           <div class="check" id="check1">✓</div>
         </div>
         <h3>Event registration</h3>
-        <p>Register for Frolic 2026 through the official event portal. This locks in your entry.</p>
+        <p>Locks in your entry through the official event portal.</p>
         <div class="tk-actions">
           <a class="tk-btn open" href="https://darshanums.in/EventRegistration/581D8E71-E7B" target="_blank" rel="noopener">Open registration form</a>
           <button class="tk-btn mark" id="markbtn1" onclick="toggleStep(1)">Mark as done</button>
@@ -868,11 +867,11 @@
 
       <div class="ticket reveal" id="ticket2">
         <div class="tk-top">
-          <span class="step-num">STEP 2</span>
+          <span class="step-num">2</span>
           <div class="check" id="check2">✓</div>
         </div>
         <h3>Performance details</h3>
-        <p>Tell us your category, format, and what you need on stage, so we can plan the run of show.</p>
+        <p>Your category, format, and what you need on stage.</p>
         <div class="tk-actions">
           <a class="tk-btn open" href="https://docs.google.com/forms/d/e/1FAIpQLScgFuzMT1SObznT4duXskidxtXUNerIHb0qyQp4Jyqihy-u8A/viewform" target="_blank" rel="noopener">Open performance form</a>
           <button class="tk-btn mark" id="markbtn2" onclick="toggleStep(2)">Mark as done</button>
@@ -882,7 +881,7 @@
 
     <div class="congrats" id="congrats">
       <h3>You're part of the show!</h3>
-      <p>Both forms are in. We'll be in touch with your slot and stage time — see you under the lights.</p>
+      <p>Both forms are in. We'll follow up with your slot and stage time.</p>
     </div>
   </div>
 </section>
@@ -891,7 +890,7 @@
   <div class="wrap footer-inner">
     <div class="footer-head">
       <h2>See you under the lights</h2>
-      <p>Questions before the big night? The faculty coordinators are one call away.</p>
+      <p>Questions before the night? Reach a coordinator directly.</p>
     </div>
 
     <div class="coord-grid">
@@ -920,7 +919,7 @@
         <a href="#register">Register</a>
       </nav>
     </div>
-    <div class="fine">Frolic 2026 · 19th September, 2026 · Registration requires completing both forms above.</div>
+    <div class="fine">Frolic 2026 · 19th September · Registration needs both forms above.</div>
   </div>
 </footer>
 
@@ -954,16 +953,30 @@
     dustEl.appendChild(s);
   }
 
-  // ---- spotlight follows cursor (hero only) ----
+  // ---- spotlight: follows the cursor on desktop, drifts on touch ----
   const hero = document.querySelector('.hero');
   const spot = document.getElementById('spotcursor');
-  hero.addEventListener('mousemove', (e) => {
-    const r = hero.getBoundingClientRect();
-    const x = ((e.clientX - r.left) / r.width) * 100;
-    const y = ((e.clientY - r.top) / r.height) * 100;
-    spot.style.setProperty('--x', x + '%');
-    spot.style.setProperty('--y', y + '%');
-  });
+  const hasFinePointer = window.matchMedia('(pointer: fine)').matches;
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (hasFinePointer) {
+    hero.addEventListener('mousemove', (e) => {
+      const r = hero.getBoundingClientRect();
+      const x = ((e.clientX - r.left) / r.width) * 100;
+      const y = ((e.clientY - r.top) / r.height) * 100;
+      spot.style.setProperty('--x', x + '%');
+      spot.style.setProperty('--y', y + '%');
+    });
+  } else if (!reduceMotion) {
+    // no mouse to track, so give the spotlight a slow ambient sweep instead
+    let t = Math.random() * 10;
+    (function driftSpot(){
+      t += 0.0045;
+      spot.style.setProperty('--x', (50 + Math.sin(t) * 32) + '%');
+      spot.style.setProperty('--y', (28 + Math.cos(t * 0.7) * 16) + '%');
+      requestAnimationFrame(driftSpot);
+    })();
+  }
 
   // ---- 3d tilt on poster ----
   const posterFrame = document.getElementById('posterFrame');
