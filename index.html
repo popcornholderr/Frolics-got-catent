@@ -540,6 +540,10 @@ footer a:hover{color:var(--ink)}
                    the slow drift, since there's no cursor to react to. ---- */
       var isMobile = window.innerWidth < 700;
       var t0 = performance.now();
+      var isVisible = true;                 // hero currently intersecting the viewport
+      var isPageVisible = !document.hidden; // browser tab is the active one
+      var loopActive = false;
+      var pausedAt = null;                  // timestamp when paused, so the animation phase never jumps
       function frame(now){
         var t = (now - t0) / 1000;
         var amp = isMobile ? 1.2 : 1;
@@ -575,9 +579,39 @@ footer a:hover{color:var(--ink)}
         group.scale.setScalar(baseScale * pulseScale);
 
         renderer.render(scene, camera);
-        requestAnimationFrame(frame);
+        if (isVisible && isPageVisible) {
+          requestAnimationFrame(frame);
+        } else {
+          loopActive = false;
+        }
       }
-      requestAnimationFrame(frame);
+
+      // the 3D object is purely decorative — stop rendering (and burning
+      // battery/CPU/GPU) whenever it's scrolled off-screen or the browser
+      // tab isn't the active one, and pick back up exactly where it left
+      // off with no visible jump when it becomes visible again
+      function updateLoop(){
+        var shouldRun = isVisible && isPageVisible;
+        if (shouldRun && !loopActive){
+          loopActive = true;
+          if (pausedAt !== null){ t0 += performance.now() - pausedAt; pausedAt = null; }
+          requestAnimationFrame(frame);
+        } else if (!shouldRun && pausedAt === null){
+          pausedAt = performance.now();
+        }
+      }
+      updateLoop();
+
+      if ('IntersectionObserver' in window){
+        new IntersectionObserver(function(entries){
+          entries.forEach(function(en){ isVisible = en.isIntersecting; });
+          updateLoop();
+        }, { threshold:0 }).observe(mount);
+      }
+      document.addEventListener('visibilitychange', function(){
+        isPageVisible = !document.hidden;
+        updateLoop();
+      });
 
       /* ------ responsive: measure the real gap between the eyebrow text
                    and the lede/actions block, then size + position the
@@ -631,7 +665,16 @@ footer a:hover{color:var(--ink)}
         group.scale.setScalar(baseScale);
         group.position.y = baseY;
       }
-      window.addEventListener('resize', fit);
+      // throttle resize -> fit(): mobile browsers fire many resize events
+      // in a row while the address bar shows/hides during scroll, and each
+      // fit() forces a layout read, so coalesce bursts into one per frame
+      var fitQueued = false;
+      function fitThrottled(){
+        if (fitQueued) return;
+        fitQueued = true;
+        requestAnimationFrame(function(){ fitQueued = false; fit(); });
+      }
+      window.addEventListener('resize', fitThrottled, { passive:true });
       // re-measure once the reveal transition (translateY) has settled,
       // once web fonts finish loading (text metrics can shift), and a
       // couple of delayed safety passes for any other late layout shift
