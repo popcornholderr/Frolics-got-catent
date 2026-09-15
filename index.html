@@ -138,6 +138,30 @@ section{position:relative;padding:clamp(90px,14vh,170px) 0}
 .sound-toggle .bar{transform-origin:center;transition:transform .3s var(--ease)}
 .sound-toggle.muted .bar{transform:scaleY(.001)}
 @media(max-width:640px){.sound-toggle{right:12px;bottom:12px;width:42px;height:42px}}
+
+/* first-visit nudge: a soft pulsing ring + small label pointing at the
+   button, until the visitor's first tap/click unmutes the track. Removed
+   from the DOM entirely once that happens, so it never comes back. */
+.sound-toggle.needs-tap::after{
+  content:'';position:absolute;inset:-6px;border-radius:999px;
+  border:1.5px solid rgba(12,13,16,.28);
+  animation:soundPulse 2.2s ease-out infinite;
+}
+@keyframes soundPulse{
+  0%{transform:scale(.82);opacity:.85}
+  70%{transform:scale(1.55);opacity:0}
+  100%{transform:scale(1.55);opacity:0}
+}
+.sound-hint{
+  position:fixed;right:70px;bottom:26px;z-index:80;
+  font-size:.72rem;font-weight:600;letter-spacing:.02em;color:var(--muted);
+  padding:7px 13px;border-radius:999px;white-space:nowrap;
+  opacity:0;transform:translateX(6px);
+  transition:opacity .5s var(--ease) .3s,transform .5s var(--ease) .3s;
+  pointer-events:none;
+}
+.sound-hint.show{opacity:1;transform:translateX(0)}
+@media(max-width:640px){.sound-hint{right:62px;bottom:22px;font-size:.66rem;padding:6px 11px}}
 .quiet{font-size:.9375rem;font-weight:500;color:var(--muted);transition:color .4s var(--ease),transform .6s var(--ease);display:inline-flex;gap:8px;align-items:center}
 .quiet:hover{color:var(--ink)}
 .quiet svg{transition:transform .6s var(--ease)}
@@ -274,7 +298,8 @@ footer a:hover{color:var(--ink)}
 
 <!-- ===================== NAVIGATION ===================== -->
 <audio id="bgm" src="song.mp3" loop preload="auto"></audio>
-<button class="sound-toggle glass" id="soundToggle" type="button" aria-pressed="false" aria-label="Mute background music">
+<span class="sound-hint glass" id="soundHint">Tap for sound</span>
+<button class="sound-toggle glass needs-tap" id="soundToggle" type="button" aria-pressed="false" aria-label="Mute background music">
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
     <path class="bar" d="M4 9v6h4l5 4V5L8 9H4z"/>
     <path d="M16.5 8.5a5 5 0 0 1 0 7"/>
@@ -927,6 +952,7 @@ footer a:hover{color:var(--ink)}
      ========================================================== */
   var bgm = document.getElementById('bgm');
   var soundBtn = document.getElementById('soundToggle');
+  var soundHint = document.getElementById('soundHint');
   if (bgm && soundBtn){
     bgm.volume = 0.55;
     var userMuted = false;
@@ -945,11 +971,17 @@ footer a:hover{color:var(--ink)}
       if (p && p.catch) p.catch(function(){ /* blocked until a gesture happens */ });
     }
 
-    // Browsers allow autoplay with sound *off*, so we start the track muted
-    // the instant the page loads (it's already rolling, in sync, silently),
-    // then drop the mute on the visitor's very first interaction with the
-    // page -- click, tap, key, or scroll -- which reads as near-instant sound
-    // without ever getting blocked by autoplay policy.
+    function retireHint(){
+      soundBtn.classList.remove('needs-tap');
+      if (soundHint){ soundHint.classList.remove('show'); }
+    }
+
+    // Browsers only allow *unmuted* autoplay after a real user gesture --
+    // click, tap, or keypress. Scroll doesn't qualify (browsers deliberately
+    // exclude it, precisely to stop sites from faking a "gesture"). So the
+    // track starts muted immediately on load, and a small pulsing hint
+    // points at the corner button until the visitor gives it that one
+    // genuine tap/click/keypress, at which point it unmutes instantly.
     function armUnmuteFallback(){
       var lift = function(){
         if (unmuted || userMuted) return;
@@ -957,15 +989,12 @@ footer a:hover{color:var(--ink)}
         bgm.muted = false;
         tryPlay();
         setIcon(true);
+        retireHint();
         window.removeEventListener('pointerdown', lift);
         window.removeEventListener('keydown', lift);
-        window.removeEventListener('scroll', lift);
-        window.removeEventListener('touchstart', lift);
       };
       window.addEventListener('pointerdown', lift, { once:true, passive:true });
       window.addEventListener('keydown', lift, { once:true });
-      window.addEventListener('scroll', lift, { once:true, passive:true });
-      window.addEventListener('touchstart', lift, { once:true, passive:true });
     }
 
     bgm.addEventListener('playing', function(){ if (!bgm.muted) setIcon(true); });
@@ -973,7 +1002,11 @@ footer a:hover{color:var(--ink)}
 
     bgm.muted = true;
     tryPlay();          // starts immediately, silently
-    armUnmuteFallback(); // unmutes on first interaction
+    armUnmuteFallback(); // unmutes on the visitor's first real tap/click/key
+
+    // reveal the hint once the page has settled in, so it doesn't flash
+    // before anything else on the page
+    if (soundHint){ setTimeout(function(){ soundHint.classList.add('show'); }, 900); }
 
     soundBtn.addEventListener('click', function(){
       if (bgm.paused || bgm.muted){
@@ -981,6 +1014,7 @@ footer a:hover{color:var(--ink)}
       } else {
         userMuted = true; bgm.pause();
       }
+      retireHint();
     });
   }
 })();
