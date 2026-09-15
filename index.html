@@ -208,6 +208,22 @@ section{position:relative;padding:clamp(90px,14vh,170px) 0}
 @media(max-width:760px){.forms{grid-template-columns:1fr}}
 
 /* ============================================================
+   CONTACT
+   ============================================================ */
+.contacts{display:grid;grid-template-columns:1fr 1fr;gap:clamp(20px,2.6vw,28px);margin-top:clamp(56px,8vh,92px)}
+.contact-card{border-radius:28px;padding:clamp(30px,3.4vw,44px);min-height:180px;display:flex;flex-direction:column;
+  justify-content:space-between;transition:transform .9s var(--ease),box-shadow .9s var(--ease);
+  background:#ffffff;border:1px solid rgba(12,13,16,.07);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,1),0 30px 56px -32px rgba(20,26,40,.26)}
+.contact-card:hover{transform:translateY(-6px)}
+.contact-card h3{font-size:clamp(1.35rem,2.6vw,1.75rem);letter-spacing:-.04em;margin-top:30px}
+.contact-card .role{margin-top:2px;font-size:.8125rem;color:var(--muted)}
+.contact-card .go{margin-top:30px;font-size:.9375rem;font-weight:550;display:inline-flex;gap:8px;align-items:center;color:var(--ink)}
+.contact-card .go svg{transition:transform .6s var(--ease)}
+.contact-card:hover .go svg{transform:translateX(4px)}
+@media(max-width:760px){.contacts{grid-template-columns:1fr}}
+
+/* ============================================================
    FOOTER
    ============================================================ */
 footer{padding:0 0 70px}
@@ -240,6 +256,7 @@ footer a:hover{color:var(--ink)}
       <a href="#categories">Categories</a>
       <a href="#judging">Judging</a>
       <a href="#rules">Rules</a>
+      <a href="#contact">Contact Us</a>
     </div>
     <a href="#register" class="btn">Register</a>
   </nav>
@@ -338,6 +355,38 @@ footer a:hover{color:var(--ink)}
       </div>
     </div>
   </section>
+
+  <!-- ===================== 05 · CONTACT ===================== -->
+  <section id="contact">
+    <div class="wrap">
+      <h2 class="h-sect rv">Questions?<br>Talk to us.</h2>
+      <p class="lede rv" style="margin-top:28px;transition-delay:.1s">
+        Faculty coordinators for Frolic's Got Catent — reach out for anything about registration or the event.
+      </p>
+      <div class="contacts">
+        <a class="contact-card rv" href="tel:+916352628009">
+          <span class="meta">01</span>
+          <div>
+            <h3>Prof. Devyani Makwana</h3>
+            <p class="role">Faculty Coordinator</p>
+            <span class="go">+91 63526 28009
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </span>
+          </div>
+        </a>
+        <a class="contact-card rv" style="transition-delay:.1s" href="tel:+917698769801">
+          <span class="meta">02</span>
+          <div>
+            <h3>Prof. Rutvi Raval</h3>
+            <p class="role">Faculty Coordinator</p>
+            <span class="go">+91 76987 69801
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
 </main>
 
 <footer>
@@ -389,6 +438,7 @@ footer a:hover{color:var(--ink)}
       scene.add(group);
       var objH = null;   // natural (unscaled) height of the logo plane, set once texture loads
       var baseY = -0.1;  // resting Y position, recalculated to sit between the two text blocks
+      var baseScale = 0.5; // fit-computed resting scale; frame() multiplies this by a tap pulse
 
       new THREE.TextureLoader().load(LOGO, function(tex){
         tex.minFilter = THREE.LinearFilter;
@@ -435,13 +485,55 @@ footer a:hover{color:var(--ink)}
         fit();
       }, undefined, useFallback);
 
-      /* ------ 2 · pointer interaction: the object leans toward the cursor,
-                   then eases back to its own drift when the pointer stops ---- */
+      /* ------ 2 · pointer interaction: the object leans toward the cursor
+                   (desktop hover), and on touch it also reacts to swipes
+                   (a flick spin with inertia) and taps (a little pulse) ---- */
       var pointer = { x:0, y:0 }, eased = { x:0, y:0 };
-      window.addEventListener('pointermove', function(e){
-        pointer.x = (e.clientX / window.innerWidth  - 0.5) * 2;
-        pointer.y = (e.clientY / window.innerHeight - 0.5) * 2;
+      var spin = 0;     // inertial extra spin left over from a swipe, decays each frame
+      var tapPulse = 0; // one-off "pulse of life" from a quick tap, decays each frame
+      var isTouch = false;
+      var dragging = false, dragLastX = 0, dragLastY = 0, dragLastT = 0;
+      var downX = 0, downY = 0, downT = 0;
+
+      function setPointer(x, y){
+        pointer.x = (x / window.innerWidth  - 0.5) * 2;
+        pointer.y = (y / window.innerHeight - 0.5) * 2;
+      }
+
+      window.addEventListener('pointerdown', function(e){
+        isTouch = e.pointerType === 'touch';
+        dragging = true;
+        downX = dragLastX = e.clientX;
+        downY = dragLastY = e.clientY;
+        downT = dragLastT = performance.now();
+        setPointer(e.clientX, e.clientY);
       }, { passive:true });
+
+      window.addEventListener('pointermove', function(e){
+        setPointer(e.clientX, e.clientY);
+        if (dragging && isTouch){
+          var now = performance.now();
+          var dt  = Math.max(now - dragLastT, 1);
+          var dx  = e.clientX - dragLastX;
+          // turn horizontal swipe speed into a gentle spin impulse ("flick")
+          spin += (dx / dt) * 0.85;
+          spin  = Math.max(-5, Math.min(5, spin));
+          dragLastX = e.clientX; dragLastY = e.clientY; dragLastT = now;
+        }
+      }, { passive:true });
+
+      function endDrag(e){
+        if (!dragging) return;
+        dragging = false;
+        if (!isTouch) return;
+        var ex = (e.clientX != null) ? e.clientX : downX;
+        var ey = (e.clientY != null) ? e.clientY : downY;
+        var dist = Math.hypot(ex - downX, ey - downY);
+        var dt   = performance.now() - downT;
+        if (dist < 14 && dt < 320) tapPulse = 1; // a quick tap: give it a pulse
+      }
+      window.addEventListener('pointerup', endDrag, { passive:true });
+      window.addEventListener('pointercancel', endDrag, { passive:true });
 
       /* ------ 3 · autonomous drift: always moving, never quickly.
                    Mobile gets a slightly larger, faster wobble on top of
@@ -463,15 +555,24 @@ footer a:hover{color:var(--ink)}
           ? Math.sin(t * 2.1) * 0.016 + Math.sin(t * 3.4 + 1.3) * 0.009
           : 0;
 
-        // interpolate pointer influence (lerp = physical, never snappy)
-        eased.x += (pointer.x - eased.x) * 0.022;
-        eased.y += (pointer.y - eased.y) * 0.022;
+        // interpolate pointer influence (lerp = physical, never snappy);
+        // touch gets a snappier ease so swipes feel directly responsive
+        var easeRate = isTouch ? 0.09 : 0.022;
+        eased.x += (pointer.x - eased.x) * easeRate;
+        eased.y += (pointer.y - eased.y) * easeRate;
 
-        group.rotation.y = selfY + eased.x * 0.22 + jitter;
+        // swipe fling and tap pulse decay back to rest over time
+        spin     *= 0.94;
+        tapPulse *= 0.93;
+
+        group.rotation.y = selfY + eased.x * 0.22 + jitter + spin * 0.05;
         group.rotation.x = selfX - eased.y * 0.14;
-        group.rotation.z = selfZ + eased.x * 0.03 + jitter * 0.6;
+        group.rotation.z = selfZ + eased.x * 0.03 + jitter * 0.6 + tapPulse * Math.sin(t * 10) * 0.05;
         group.position.y = baseY + bob - eased.y * 0.12;
-        group.position.x = eased.x * 0.22;
+        group.position.x = eased.x * 0.22 + spin * 0.01;
+
+        var pulseScale = 1 + tapPulse * 0.05 * Math.sin(t * 14);
+        group.scale.setScalar(baseScale * pulseScale);
 
         renderer.render(scene, camera);
         requestAnimationFrame(frame);
@@ -526,7 +627,8 @@ footer a:hover{color:var(--ink)}
         }
 
         baseY = offsetY;
-        group.scale.setScalar(scale);
+        baseScale = scale;
+        group.scale.setScalar(baseScale);
         group.position.y = baseY;
       }
       window.addEventListener('resize', fit);
