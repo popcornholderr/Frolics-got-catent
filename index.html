@@ -930,8 +930,10 @@ footer a:hover{color:var(--ink)}
   if (bgm && soundBtn){
     bgm.volume = 0.55;
     var userMuted = false;
+    var unmuted = false; // becomes true once we've lifted the initial silent-autoplay mute
 
     function setIcon(playing){
+      // "playing" here reflects audible state, not just whether the element is running
       soundBtn.classList.toggle('muted', !playing);
       soundBtn.setAttribute('aria-pressed', String(!playing));
       soundBtn.setAttribute('aria-label', playing ? 'Mute background music' : 'Play background music');
@@ -943,25 +945,42 @@ footer a:hover{color:var(--ink)}
       if (p && p.catch) p.catch(function(){ /* blocked until a gesture happens */ });
     }
 
-    function armAutoplayFallback(){
-      var start = function(){
+    // Browsers allow autoplay with sound *off*, so we start the track muted
+    // the instant the page loads (it's already rolling, in sync, silently),
+    // then drop the mute on the visitor's very first interaction with the
+    // page -- click, tap, key, or scroll -- which reads as near-instant sound
+    // without ever getting blocked by autoplay policy.
+    function armUnmuteFallback(){
+      var lift = function(){
+        if (unmuted || userMuted) return;
+        unmuted = true;
+        bgm.muted = false;
         tryPlay();
-        window.removeEventListener('pointerdown', start);
-        window.removeEventListener('keydown', start);
+        setIcon(true);
+        window.removeEventListener('pointerdown', lift);
+        window.removeEventListener('keydown', lift);
+        window.removeEventListener('scroll', lift);
+        window.removeEventListener('touchstart', lift);
       };
-      window.addEventListener('pointerdown', start, { once:true, passive:true });
-      window.addEventListener('keydown', start, { once:true });
+      window.addEventListener('pointerdown', lift, { once:true, passive:true });
+      window.addEventListener('keydown', lift, { once:true });
+      window.addEventListener('scroll', lift, { once:true, passive:true });
+      window.addEventListener('touchstart', lift, { once:true, passive:true });
     }
 
-    bgm.addEventListener('playing', function(){ setIcon(true); });
+    bgm.addEventListener('playing', function(){ if (!bgm.muted) setIcon(true); });
     bgm.addEventListener('pause', function(){ setIcon(false); });
 
-    tryPlay();
-    armAutoplayFallback();
+    bgm.muted = true;
+    tryPlay();          // starts immediately, silently
+    armUnmuteFallback(); // unmutes on first interaction
 
     soundBtn.addEventListener('click', function(){
-      if (bgm.paused){ userMuted = false; tryPlay(); }
-      else { userMuted = true; bgm.pause(); }
+      if (bgm.paused || bgm.muted){
+        userMuted = false; unmuted = true; bgm.muted = false; tryPlay();
+      } else {
+        userMuted = true; bgm.pause();
+      }
     });
   }
 })();
