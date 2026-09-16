@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="intro-lock">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#ffffff">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
 /* ============================================================
    TOKENS
@@ -288,11 +288,91 @@ footer a:hover{color:var(--ink)}
 
 @media(prefers-reduced-motion:reduce){
   *{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
-  .rv{opacity:1;transform:none;filter:none}
+  .rv,.hero-rv{opacity:1;transform:none;filter:none}
+}
+
+/* ============================================================
+   INTRO VEIL — 4s max, auto-plays on load, then hands off to site
+   ============================================================ */
+html.intro-lock,html.intro-lock body{overflow:hidden;height:100%}
+.intro-veil{
+  position:fixed;inset:0;z-index:999;background:var(--paper);
+  cursor:pointer;overflow:hidden;
+  animation:introVeilOut .5s cubic-bezier(.65,0,.35,1) forwards;animation-delay:3.5s;
+}
+.intro-veil::after{
+  content:'';position:absolute;left:0;right:0;bottom:-48px;height:48px;
+  background:linear-gradient(to bottom,rgba(12,13,16,.07),transparent);
+}
+.intro-veil.skip{animation-duration:.4s;animation-delay:0s}
+.intro-headline{
+  position:absolute;left:var(--gut);top:50%;max-width:calc(100vw - 2*var(--gut));
+  display:flex;flex-direction:column;align-items:flex-start;gap:.02em;
+  font-family:'Poppins','Inter',sans-serif;font-weight:700;color:var(--ink);
+  text-align:left;line-height:1;letter-spacing:-.01em;
+  font-size:clamp(1.9rem,7.2vw,5.2rem);
+  opacity:0;animation:introHeadlineIn 2.05s cubic-bezier(.22,1,.36,1) both;
+}
+.intro-headline .connector{
+  font-family:'Inter',sans-serif;font-weight:600;text-transform:uppercase;
+  font-size:.3em;letter-spacing:.42em;color:var(--muted);
+  margin:.22em 0;
+}
+.intro-sub{
+  position:absolute;left:50%;top:50%;
+  font-family:'Inter',sans-serif;font-weight:600;color:var(--ink);
+  text-transform:uppercase;text-align:center;font-size:clamp(.95rem,2.3vw,1.4rem);
+  padding-left:.32em; /* offset trailing tracking for true optical centering */
+  opacity:0;animation:introSubIn 1.5s cubic-bezier(.22,1,.36,1) both;animation-delay:2.05s;
+}
+@keyframes introHeadlineIn{
+  0%{opacity:0;transform:translateY(calc(-50% + 10px)) scale(1.05);filter:blur(14px);clip-path:inset(0 0 100% 0)}
+  38%{opacity:1;transform:translateY(-50%) scale(1);filter:blur(0);clip-path:inset(0 0 0% 0)}
+  80%{opacity:1;transform:translateY(-50%) scale(1);filter:blur(0);clip-path:inset(0 0 0% 0)}
+  100%{opacity:0;transform:translateY(calc(-50% - 6px)) scale(1.02);filter:blur(9px);clip-path:inset(0 0 0% 0)}
+}
+@keyframes introSubIn{
+  0%{opacity:0;letter-spacing:.62em;filter:blur(5px);transform:translate(-50%,calc(-50% + 8px))}
+  30%{opacity:1;letter-spacing:.32em;filter:blur(0);transform:translate(-50%,-50%)}
+  76%{opacity:1;letter-spacing:.32em;transform:translate(-50%,-50%)}
+  100%{opacity:0;letter-spacing:.5em;filter:blur(4px);transform:translate(-50%,calc(-50% - 6px))}
+}
+@keyframes introVeilOut{
+  0%{transform:translateY(0)}
+  100%{transform:translateY(-100%)}
+}
+@media(prefers-reduced-motion:reduce){
+  .intro-veil{animation-duration:.001ms!important;animation-delay:0s!important}
+  .intro-headline,.intro-sub{animation-duration:.001ms!important;animation-delay:0s!important;opacity:1!important;transform:translateY(-50%)!important;filter:none!important;clip-path:none!important}
+  .intro-sub{transform:translate(-50%,-50%)!important}
+}
+
+/* ============================================================
+   SITE ENTRANCE — plays once, timed to the veil lifting away:
+   the nav drops in from above, the hero's bottom content rises
+   in from below, so the reveal feels like one orchestrated move
+   ============================================================ */
+.nav-in{transform:translateY(-160%);opacity:0;transition:transform 2.1s cubic-bezier(.16,1,.3,1),opacity 1.7s var(--ease)}
+body.site-in .nav-in{transform:none;opacity:1}
+.hero-rv{opacity:0;transform:translateY(64px);filter:blur(5px);
+  transition:opacity 2.1s var(--ease),transform 2.1s var(--ease),filter 2.1s var(--ease)}
+body.site-in .hero-rv{opacity:1;transform:none;filter:none}
+@media(prefers-reduced-motion:reduce){
+  .nav-in,.hero-rv{opacity:1!important;transform:none!important;filter:none!important;transition:none!important}
 }
 </style>
 </head>
 <body>
+<noscript><style>.intro-veil{display:none}.nav-in,.hero-rv{opacity:1!important;transform:none!important;filter:none!important}</style></noscript>
+
+<div class="intro-veil" id="introVeil" role="presentation" aria-hidden="true">
+  <div class="intro-headline">
+    <span>First Time</span>
+    <span class="connector">in</span>
+    <span>Darshan University</span>
+  </div>
+  <div class="intro-sub">Introducing</div>
+</div>
 
 <div class="atmos" aria-hidden="true"><i class="a"></i><i class="b"></i></div>
 
@@ -330,15 +410,15 @@ footer a:hover{color:var(--ink)}
     </div>
 
     <div class="hero-in">
-      <p class="meta rv">Frolic 2026 · Darshan University</p>
+      <p class="meta hero-rv" style="transition-delay:.1s">Frolic 2026 · Darshan University</p>
 
       <div class="hero-spacer" aria-hidden="true"></div>
 
       <div class="hero-bottom">
-        <p class="lede rv" style="transition-delay:.1s">
+        <p class="lede hero-rv" style="transition-delay:.4s">
           No specific talent required. Perform anything that entertains the room.
         </p>
-        <div class="hero-actions rv" style="transition-delay:.2s">
+        <div class="hero-actions hero-rv" style="transition-delay:.7s">
           <a href="#register" class="btn">Register</a>
           <a href="#rules" class="quiet">Explore the rules
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
@@ -950,6 +1030,31 @@ footer a:hover{color:var(--ink)}
      on the visitor's first tap/click/keypress instead. The corner
      button always lets them mute it back off.
      ========================================================== */
+  // Intro veil: plays automatically, curtain-lifts away by 4s max, then
+  // hands off to the site. The nav-drop / hero-rise entrance is triggered
+  // at the same moment the curtain starts lifting, so it reads as one
+  // continuous move rather than two separate animations. A tap/click
+  // anywhere on the veil skips ahead early (nice for repeat visitors) --
+  // this also happens to be a real user gesture, so it doubles as the
+  // trigger that unmutes the background track below.
+  (function(){
+    var veil = document.getElementById('introVeil');
+    if (!veil){ document.documentElement.classList.remove('intro-lock'); document.body.classList.add('site-in'); return; }
+    var done = false;
+    function finish(skipped){
+      if (done) return;
+      done = true;
+      document.documentElement.classList.remove('intro-lock');
+      document.body.classList.add('site-in');
+      if (skipped) veil.classList.add('skip');
+      window.setTimeout(function(){
+        veil.style.display = 'none';
+      }, skipped ? 420 : 560);
+    }
+    veil.addEventListener('click', function(){ finish(true); });
+    window.setTimeout(function(){ finish(false); }, 3500);
+  })();
+
   var bgm = document.getElementById('bgm');
   var soundBtn = document.getElementById('soundToggle');
   var soundHint = document.getElementById('soundHint');
